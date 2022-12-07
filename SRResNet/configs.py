@@ -7,11 +7,11 @@ RANDOM_SEED = 6  # 设置随机种子
 # 数据集参数
 LFW_IMAGE_PATH = r'data/lfw'  # 数据集相对根路径
 IMAGE_SIZE = 256  # 输入统一调整尺寸
-NUM_WORKERS = 2
+NUM_WORKERS = 4
 
 # 模型参数
 MODEL_NAME = 'SRResNet'  # 定义选择哪个模型
-NUM_RESIDUAL_LAYERS = 16  # 残差块包含的残差层数量
+NUM_RESIDUAL_LAYERS = 32  # 残差块包含的残差层数量
 UPSCALE_FACTOR = 4  # 放大倍数（必须为2的整数倍）
 INPUT_CHANNELS = 3  # 网络输入通道数
 FEATURE_MAP_CHANNELS = 64  # 中间卷积层输出feature_map通道数
