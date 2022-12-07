@@ -30,4 +30,3 @@ OPTIMIZER = 'adam'  # 优化方法
 # 设备参数
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # 优先选择gpu，若无gpu默认使用cpu
 NGPU = torch.cuda.device_count()  # gpu数量
-
