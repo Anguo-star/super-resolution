@@ -152,7 +152,7 @@ def get_model(model_name=configs.MODEL_NAME, device=configs.DEVICE, ngpu=configs
 def load_checkpoint(optimizer, model):
     global start_epoch
     if os.path.exists(configs.CHECKPOINT_PATH):
-        checkpoint = torch.load(configs.CHECKPOINT_PATH)
+        checkpoint = torch.load(configs.CHECKPOINT_PATH, map_location=configs.DEVICE)
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         start_epoch = checkpoint['epoch'] + 1
