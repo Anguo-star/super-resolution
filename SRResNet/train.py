@@ -11,7 +11,7 @@ import torch.backends.cudnn as cudnn
 
 import configs
 from models.srresnet import SRResNet
-from utils.optimizer_util import get_optimizer
+from utils.optimizer_util import get_optimizer, get_lr_scheduler
 from utils.loss_util import get_loss_func
 from utils.transform_util import pil_transforms
 from utils.dataset_util import gen_dataset
@@ -58,6 +58,7 @@ def train(model, train_dataloader, test_dataloader, configs):
 
     num_epochs = configs.NUM_EPOCHS
     optimizer = get_optimizer(model)
+    lr_scheduler = get_lr_scheduler(optimizer)
     loss_func = get_loss_func()
 
     num_batch = len(train_dataloader)
