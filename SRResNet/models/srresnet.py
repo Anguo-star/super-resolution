@@ -13,14 +13,14 @@ class SRResNet(nn.Module):
 
         # 输入层卷积
         self.conv_input = nn.Conv2d(in_channels, feature_map_channels, kernel_size=9, stride=1, padding=4, bias=False)
-        self.relu = nn.LeakyReLU(0.2, inplace=True)
+        self.leaky_relu = nn.LeakyReLU(0.2, inplace=True)
 
         # 残差块
         self.residual_block = self.make_layer(ResidualLayer(feature_map_channels, kernel_size=3), num_residual_layers)
 
         # 中间层卷积块
         self.conv_mid = nn.Conv2d(feature_map_channels, feature_map_channels, kernel_size=3, stride=1, padding=1, bias=False)
-        self.instance_norm = nn.InstanceNorm2d(feature_map_channels, affine=True)
+        self.instance_norm_mid = nn.InstanceNorm2d(feature_map_channels, affine=True)
 
         # pixel_shuffle放大
         self.upscale_layers = []
@@ -31,6 +31,7 @@ class SRResNet(nn.Module):
 
         # 输出卷积块
         self.conv_ioutput = nn.Conv2d(feature_map_channels, in_channels, kernel_size=9, stride=1, padding=4, bias=False)
+        self.tanh = nn.Tanh()
 
         # 初始化参数
         self.init_weights()
@@ -50,11 +51,11 @@ class SRResNet(nn.Module):
                     module.bias.data.zero_()
 
     def forward(self, inputs):
-        output = self.relu(self.conv_input(inputs))
+        output = self.leaky_relu(self.conv_input(inputs))
         output = self.residual_block(output)
-        output = self.instance_norm(self.conv_mid(output))
+        output = self.instance_norm_mid(self.conv_mid(output))
         output = self.upscale_block(output)
-        output = self.conv_ioutput(output)
+        output = self.tanh((self.conv_ioutput(output)))
         return output
 
 

@@ -46,7 +46,7 @@ def main():
                                  shuffle=False,
                                  num_workers=configs.NUM_WORKERS)
 
-    model = get_model(configs.MODEL_NAME)
+    model = get_model(configs.GENERATOR)
 
     history = train(model, train_dataloader, test_dataloader, configs)
 
@@ -131,9 +131,9 @@ def validation(model, test_dataloader, loss_fn):
     return losses / num_batch
 
 
-def get_model(model_name=configs.MODEL_NAME, device=configs.DEVICE, ngpu=configs.NGPU):
-    logging.info(f"selected model is {configs.MODEL_NAME}")
-    if model_name.lower() == 'srresnet':
+def get_model(generator=configs.GENERATOR, device=configs.DEVICE, ngpu=configs.NGPU):
+    logging.info(f"selected model is {configs.GENERATOR}")
+    if generator.lower() == 'srresnet':
         model = SRResNet(in_channels=configs.INPUT_CHANNELS,
                          feature_map_channels=configs.FEATURE_MAP_CHANNELS,
                          num_residual_layers=configs.NUM_RESIDUAL_LAYERS,

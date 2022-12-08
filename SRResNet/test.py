@@ -29,6 +29,8 @@ def test_super_resolution(num_plots: int = 1, checkpoint_path: str = configs.CHE
     for i in range(num_plots):
         hr_image, lr_image = dataset[i]
         sr_image = model(lr_image.unsqueeze(0)).squeeze(0)
+        print('hr_image.max', hr_image.max())
+        print('sr_image.max', sr_image.max())
 
         plot_images(lr_image.permute((1, 2, 0)).cpu().detach().numpy(),
                     hr_image.permute((1, 2, 0)).cpu().detach().numpy(),

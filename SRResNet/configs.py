@@ -5,21 +5,21 @@ import torch
 RANDOM_SEED = 6  # 设置随机种子
 
 # 数据集参数
-LFW_IMAGE_PATH = r'data/lfw'  # 数据集相对根路径
+LFW_IMAGE_PATH = r'data/lfw_flatten'  # 数据集相对根路径
 IMAGE_SIZE = 256  # 输入统一调整尺寸
-NUM_WORKERS = 4
+NUM_WORKERS = 2
 
 # 模型参数
-MODEL_NAME = 'SRResNet'  # 定义选择哪个模型
-NUM_RESIDUAL_LAYERS = 16  # 残差块包含的残差层数量
+GENERATOR = 'SRResNet'  # 定义选择哪个模型
+NUM_RESIDUAL_LAYERS = 4  # 残差块包含的残差层数量
 UPSCALE_FACTOR = 4  # 放大倍数（必须为2的整数倍）
 INPUT_CHANNELS = 3  # 网络输入通道数
 FEATURE_MAP_CHANNELS = 64  # 中间卷积层输出feature_map通道数
-OPEN_CHECKPOINT_READ = True
-OPEN_CHECKPOINT_WRITE = False
-CHECKPOINT_PATH = r'results/saved_model/SRResNet_256_64x4_16res.pth'
-MODEL_PATH = r'results/saved_model/SRResNet_kaggle_1208.pth'
-HISTORY_PATH = r'results/history/SRResNet_kaggle_1208.npy'
+OPEN_CHECKPOINT_READ = True  # 开启读checkpoint
+OPEN_CHECKPOINT_WRITE = True  # 开启写checkpoint
+CHECKPOINT_PATH = r'results/saved_model/SRResNet_256_128x2_4res.pth'  # 若用kaggle训练，路径前需加 ../../../../
+MODEL_PATH = r'results/saved_model/SRResNet_256_128x2_4res.pth'  # 若用kaggle训练，路径前需加 ../../../../
+HISTORY_PATH = r'results/history/SRResNet_256_128x2_4res.pth'  # 若用kaggle训练，路径前需加 ../../../../
 
 # 训练参数
 BATCH_SIZE = 64  # 数据集批量尺寸

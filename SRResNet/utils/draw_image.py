@@ -40,5 +40,3 @@ if __name__ == '__main__':
     plot_images(lr_image.permute((1, 2, 0)).cpu().detach().numpy(),
                 hr_image.permute((1, 2, 0)).cpu().detach().numpy(),
                 sr_image.permute((1, 2, 0)).cpu().detach().numpy())
-    # cv2.imshow('lr', lr_image.permute((1, 2, 0)).numpy())
-    # cv2.imshow('hr', hr_image.permute((1, 2, 0)).numpy())
