@@ -81,6 +81,9 @@ def train(model, train_dataloader, test_dataloader, configs):
                 print(f"[{epoch + 1}/{num_epochs}] [{batch + 1}/{num_batch}]\tTrain Loss: {train_loss}\tValid Loss: {valid_loss}")
 
         del lr_imgs, hr_imgs, sr_imgs
+
+        lr_scheduler.step()
+
         if configs.OPEN_CHECKPOINT_WRITE:
             logging.info(f"[INFO] Saving checkpoint model (epoch={epoch+1}) start...")
             torch.save({'epoch': epoch,
