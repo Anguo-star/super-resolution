@@ -64,3 +64,27 @@ class TruncatedVGG19(nn.Module):
 
         self.vgg19 = torchvision.models.vgg19(pretrained=True)
 
+        maxpool_counter = 0
+        conv_counter = 0
+        truncate_loc = 1
+        for layer in self.vgg19.features.children():
+            if isinstance(layer, nn.Conv2d):
+                conv_counter += 1
+            if isinstance(layer, nn.MaxPool2d):
+                maxpool_counter += 1
+                conv_counter = 0
+            if maxpool_counter == i - 1 and conv_counter == j:
+                break
+            truncate_loc += 1
+
+        self.truncated_vgg19 = nn.Sequential(*list(vgg19.features.children()))[:truncate_loc]
+
+    def forward(self, inputs):
+        output = self.truncated_vgg19(inputs)
+        return output
+
+
+if __name__ == '__main__':
+    vgg19 = torchvision.models.vgg19()
+    print(list(vgg19.features.children()))
+    print(list(vgg19.features.modules()))
