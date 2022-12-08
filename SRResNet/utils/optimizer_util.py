@@ -30,4 +30,4 @@ def get_lr_scheduler(optimizer, schedule: str = configs.LR_SCHEDULE):
             return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=configs.LR_LAMBDA, )
     except:
         raise ValueError(f"""schedule {schedule} not support, please choose one from:
-                         ['StepLR', 'MultistepLR', 'ExponentialLR', 'CosineAnnealingLR']""")
+                         ['StepLR', 'MultistepLR', 'ExponentialLR', 'CosineAnnealingLR', 'LambdaLR']""")
