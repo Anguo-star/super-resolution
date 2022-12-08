@@ -66,7 +66,7 @@ def train(model, train_dataloader, test_dataloader, configs):
     train_losses = []
     valid_losses = []
 
-    if configs.OPEN_CHECKPOINT:
+    if configs.OPEN_CHECKPOINT_READ:
         load_checkpoint(optimizer, model)
     for epoch in range(start_epoch, num_epochs):
         for batch, (hr_imgs, lr_imgs) in enumerate(train_dataloader):
@@ -81,13 +81,13 @@ def train(model, train_dataloader, test_dataloader, configs):
                 print(f"[{epoch + 1}/{num_epochs}] [{batch + 1}/{num_batch}]\tTrain Loss: {train_loss}\tValid Loss: {valid_loss}")
 
         del lr_imgs, hr_imgs, sr_imgs
-
-        logging.info(f"[INFO] Saving checkpoint model (epoch={epoch+1}) start...")
-        torch.save({'epoch': epoch,
-                    'model': model.state_dict(),
-                    'optimizer': optimizer.state_dict()},
-                   configs.MODEL_PATH)
-        logging.info(f"[INFO] Saving checkpoint model (epoch={epoch+1}) over!")
+        if configs.OPEN_CHECKPOINT_WRITE:
+            logging.info(f"[INFO] Saving checkpoint model (epoch={epoch+1}) start...")
+            torch.save({'epoch': epoch,
+                        'model': model.state_dict(),
+                        'optimizer': optimizer.state_dict()},
+                       configs.MODEL_PATH)
+            logging.info(f"[INFO] Saving checkpoint model (epoch={epoch+1}) over!")
 
     logging.info("[INFO] Train over!")
     logging.info("[INFO] Saving model start...")
