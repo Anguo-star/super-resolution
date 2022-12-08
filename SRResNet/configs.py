@@ -22,8 +22,8 @@ MODEL_PATH = r'results/saved_model/SRResNet_kaggle_1208.pth'
 HISTORY_PATH = r'results/history/SRResNet_kaggle_1208.npy'
 
 # 训练参数
-BATCH_SIZE = 128  # 数据集批量尺寸
-NUM_EPOCHS = 200  # 训练迭代次数
+BATCH_SIZE = 64  # 数据集批量尺寸
+NUM_EPOCHS = 100  # 训练迭代次数
 LOSS_FN = 'MSE'  # 损失函数
 OPTIMIZER = 'adam'  # 优化方法
 LEARNING_RATE = 1e-3  # 初始学习率
