@@ -1,5 +1,4 @@
 import logging
-import sys
 import os
 import random
 
@@ -8,6 +7,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
+from torch.utils.tensorboard import SummaryWriter
+from torchvision.utils import make_grid
 
 import configs
 from models.srresnet import SRResNet
@@ -22,6 +23,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 # 全局变量
 start_epoch = 0
+writer = SummaryWriter()
 
 
 def main():
@@ -54,6 +56,7 @@ def main():
 
 
 def train(model, train_dataloader, test_dataloader, configs):
+    global writer
     logging.info("[INFO] Training start...")
 
     num_epochs = configs.NUM_EPOCHS
@@ -63,11 +66,12 @@ def train(model, train_dataloader, test_dataloader, configs):
 
     num_batch = len(train_dataloader)
     history = {}
+    lr_history = []
     train_losses = []
     valid_losses = []
 
     if configs.OPEN_CHECKPOINT_READ:
-        load_checkpoint(optimizer, model)
+        load_checkpoint(model, optimizer, lr_scheduler)
     for epoch in range(start_epoch, num_epochs):
         for batch, (hr_imgs, lr_imgs) in enumerate(train_dataloader):
             hr_imgs, lr_imgs = hr_imgs.to(configs.DEVICE), lr_imgs.to(configs.DEVICE)
@@ -77,18 +81,31 @@ def train(model, train_dataloader, test_dataloader, configs):
             valid_loss = validation(model, test_dataloader, loss_func)
             valid_losses.append(valid_loss)
 
+
+            if batch == 0:
+                writer.add_image(
+                    f"epoch_{str(epoch)}_lr", make_grid(lr_imgs[:4, :3, :, :].cpu(), nrow=4, normalize=True), epoch)
+                writer.add_image(
+                    f"epoch_{str(epoch)}_sr", make_grid(sr_imgs[:4, :3, :, :].cpu(), nrow=4, normalize=True), epoch)
+                writer.add_image(
+                    f"epoch_{str(epoch)}_hr", make_grid(hr_imgs[:4, :3, :, :].cpu(), nrow=4, normalize=True), epoch)
             if batch % 1 == 0 or batch == num_batch - 1:
-                print(f"[{epoch + 1}/{num_epochs}] [{batch + 1}/{num_batch}]\tTrain Loss: {train_loss}\tValid Loss: {valid_loss}")
+                print(f"[{epoch + 1}/{num_epochs}] [{batch + 1}/{num_batch}]\nTrain Loss: {train_loss}\tValid Loss: {valid_loss}\tlr: {lr_scheduler.state_dict()['_last_lr']}")
 
         del lr_imgs, hr_imgs, sr_imgs
+        writer.add_scalar('Train_loss', train_loss, epoch)
+        writer.add_scalar('Valid_loss', valid_loss, epoch)
 
+        lr_history.append(lr_scheduler.state_dict()['_last_lr'])
         lr_scheduler.step()
+
 
         if configs.OPEN_CHECKPOINT_WRITE:
             logging.info(f"[INFO] Saving checkpoint model (epoch={epoch+1}) start...")
             torch.save({'epoch': epoch,
                         'model': model.state_dict(),
-                        'optimizer': optimizer.state_dict()},
+                        'optimizer': optimizer.state_dict(),
+                        'lr_scheduler': lr_scheduler.state_dict()},
                        configs.MODEL_PATH)
             logging.info(f"[INFO] Saving checkpoint model (epoch={epoch+1}) over!")
 
@@ -96,14 +113,17 @@ def train(model, train_dataloader, test_dataloader, configs):
     logging.info("[INFO] Saving model start...")
     torch.save({'epoch': epoch,
                 'model': model.state_dict(),
-                'optimizer': optimizer.state_dict()},
+                'optimizer': optimizer.state_dict(),
+                'lr_scheduler': lr_scheduler.state_dict()},
                configs.MODEL_PATH)
     logging.info("[INFO] Saving model over!")
 
-    history['model'] = model
+    history['lr_history'] = lr_history
     history['train_losses'] = train_losses
     history['valid_losses'] = valid_losses
     np.save(configs.HISTORY_PATH, history)
+
+    writer.close()
     return history
 
 
@@ -131,7 +151,9 @@ def validation(model, test_dataloader, loss_fn):
     return losses / num_batch
 
 
-def get_model(generator=configs.GENERATOR, device=configs.DEVICE, ngpu=configs.NGPU):
+def get_model(generator=configs.GENERATOR,
+              device=configs.DEVICE,
+              ngpu=configs.NGPU):
     logging.info(f"selected model is {configs.GENERATOR}")
     if generator.lower() == 'srresnet':
         model = SRResNet(in_channels=configs.INPUT_CHANNELS,
@@ -149,12 +171,13 @@ def get_model(generator=configs.GENERATOR, device=configs.DEVICE, ngpu=configs.N
     return model
 
 
-def load_checkpoint(optimizer, model):
+def load_checkpoint(model, optimizer, lr_scheduler):
     global start_epoch
     if os.path.exists(configs.CHECKPOINT_PATH):
         checkpoint = torch.load(configs.CHECKPOINT_PATH, map_location=configs.DEVICE)
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
+        lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
         start_epoch = checkpoint['epoch'] + 1
 
 

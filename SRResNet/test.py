@@ -38,7 +38,7 @@ def test_super_resolution(num_plots: int = 1, checkpoint_path: str = configs.CHE
 
 
 if __name__ == '__main__':
-    test_super_resolution(2, r'results/saved_model/SRResNet_256_64x4_16res.pth')
+    test_super_resolution(2, r'results/saved_model/SRResNet_256_128x2_4res.pth')
     print(f'start_epoch: {start_epoch}')
 
 

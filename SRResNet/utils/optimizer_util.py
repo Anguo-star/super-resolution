@@ -9,9 +9,9 @@ import configs
 
 def get_optimizer(model, optimizer_name: str = configs.OPTIMIZER, learning_rate: float = configs.LEARNING_RATE):
     if optimizer_name.lower() == 'adam':
-        return torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=5e-4)
+        return torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate, weight_decay=5e-4)
     elif optimizer_name.lower() == 'sgd':
-        return torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=5e-4)
+        return torch.optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate, weight_decay=5e-4)
 
 
 def get_lr_scheduler(optimizer, schedule: str = configs.LR_SCHEDULE):
@@ -29,5 +29,12 @@ def get_lr_scheduler(optimizer, schedule: str = configs.LR_SCHEDULE):
         elif schedule.lower() == 'LambdaLR'.lower():
             return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=configs.LR_LAMBDA, )
     except:
-        raise ValueError(f"""schedule {schedule} not support, please choose one from:
+        raise ValueError(f"""schedule {schedule} not support, please choose one from followings:
                          ['StepLR', 'MultistepLR', 'ExponentialLR', 'CosineAnnealingLR', 'LambdaLR']""")
+
+
+if __name__ == '__main__':
+    optimizer = get_optimizer(model=torch.nn.Conv2d(3, 3, 3, 1, 1))
+    lr_scheduler = get_lr_scheduler(optimizer)
+    print(optimizer.state_dict())
+    print(lr_scheduler.state_dict()['_last_lr'])
